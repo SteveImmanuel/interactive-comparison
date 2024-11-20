@@ -3,16 +3,17 @@
     data = data.data;
     const dataTranpose = {};
     for (let modelName in data) {
-        for (let uid in data[modelName]) {
+
+        for (let uid in data[modelName].images) {
             if (!dataTranpose[uid]) {
                 dataTranpose[uid] = {};
             }
-            dataTranpose[uid][modelName] = data[modelName][uid];
+            dataTranpose[uid][modelName] = data[modelName].images[uid];
         }
     }
     console.log(dataTranpose)
-    // console.log(data)
-    const columnOrder = ['AOI Image', 'Ground Truth', 'YOLO', 'SegGPT']
+    const modelNames = Object.keys(data).filter(modelName => modelName !== 'AOI Image' && modelName !== 'Ground Truth');
+    const columnOrder = ['AOI Image', 'Ground Truth', ...modelNames];
 </script>
 
 <div>
@@ -28,13 +29,28 @@
         <tbody>
             {#each Object.keys(dataTranpose) as sample}
                 <tr>
-                    <td>{sample}</td>
+                    <td rowspan="2">{sample}</td>
                     {#each columnOrder as modelName}
                         <td>
                             <div class='img-container'>
-                                <img class='base-img' src='/{modelName}/{dataTranpose[sample][modelName]}' alt={modelName}/>
-                                <img class='overlay-img' src='/AOI Image/{dataTranpose[sample][modelName]}' alt={modelName}/>
+                                <img class='base-img' src='/{modelName}/images/{dataTranpose[sample][modelName]}' alt={modelName}/>
+                                <img class='overlay-img' src='/AOI Image/images/{dataTranpose[sample][modelName]}' alt={modelName}/>
                             </div>
+                        </td>
+                    {/each}
+                </tr>
+                <tr>
+                    {#each columnOrder as modelName, index}
+                        <td>
+                            {#if index > 1}
+                                <div class='img-container'>
+                                    <img class='base-img' src='/{modelName}/iou_plot/{dataTranpose[sample][modelName]}' alt={modelName}/>
+                                </div>
+                            <!-- {:else}
+                                <div class='img-container'>
+                                    <img class='base-img' src='/{modelName}/visualization/{dataTranpose[sample][modelName]}' alt={modelName}/>
+                                </div> -->
+                            {/if}
                         </td>
                     {/each}
                 </tr>
@@ -81,6 +97,7 @@ tbody td:first-child {
 .img-container {
     position: relative;
     max-width: 30em;
+    min-width: 20em;
 }
 
 .base-img {
@@ -100,7 +117,7 @@ tbody td:first-child {
 }
 
 .img-container:hover .overlay-img {
-    opacity: 0.3;
+    opacity: 0.5;
 }
 
 </style>

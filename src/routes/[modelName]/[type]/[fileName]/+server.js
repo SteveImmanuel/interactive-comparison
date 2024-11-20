@@ -4,14 +4,10 @@ import path from 'path';
 
 
 export async function GET({ params }) {
-    const { modelName, fileName } = params;
-
-
-    console.log(modelName)
-    console.log(fileName)
-
-    const filePath = path.resolve('data', modelName, fileName);
-
+    const { modelName, type, fileName } = params;
+    console.log(params)
+    const filePath = path.resolve('data', modelName, type, fileName);
+    console.log(filePath)
     if (!fs.existsSync(filePath)) {
         throw error(404, 'File not found');
     }
@@ -28,6 +24,9 @@ export async function GET({ params }) {
             break;
         case '.txt':
             contentType = 'text/plain';
+            break;
+        case '.json':
+            contentType = 'application/json';
             break;
     }
 

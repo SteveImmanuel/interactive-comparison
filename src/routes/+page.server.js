@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { promises as fsPromise } from 'fs';
 
-const ALLOWED_EXT = ['.png', '.jpg', '.txt', '.tif']
+const ALLOWED_EXT = ['.png', '.jpg', '.txt', '.tif', '.json']
 
 const getDirectories = async (uri) => {
     const dirs = fs.readdirSync(uri);
@@ -34,7 +34,11 @@ const getData = (uri) => {
 export async function load() {
     const data = {};
     for (let modelName of await getDirectories('data')) {
-        data[modelName] = getData(path.join('data', modelName));
+        data[modelName] = {};
+        for (let type of await getDirectories(path.join('data', modelName))) {
+            data[modelName][type] = getData(path.join('data', modelName, type));
+        }
     }
+    console.log(data)
     return { data };
 }
